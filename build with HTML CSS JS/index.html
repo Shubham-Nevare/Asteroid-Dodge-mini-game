@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asteroid Dodge - Mini Game</title>
+    <link rel="icon" href="favicon.png" type="image/x-icon">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <canvas id="gameCanvas"></canvas>
+        
+        <div class="ui-container">
+            <div class="score-box">Score: <span id="score">0</span></div>
+            <div class="level-box" id="levelBox">Level <span id="level">1</span></div>
+            <div class="health-box">Health: <span id="health">3</span></div>
+        </div>
+
+        <div class="start-screen" id="startScreen">
+            <div class="start-content">
+                <h1>🚀 ASTEROID DODGE</h1>
+                <p>Survive the asteroid storm!</p>
+                <div class="instructions">
+                    <li>Use ARROW KEYS or WASD to move</li>
+                    <li>Avoid red asteroids</li>
+                    <li>Collect green shields for protection</li>
+                    <li>Collect blue stars for bonus points</li>
+                    <li>Survive as long as possible</li>
+                </div>
+                <button class="play-btn" onclick="game.startGame()">PLAY NOW</button>
+            </div>
+        </div>
+
+        <div class="game-over-screen" id="gameOverScreen">
+            <div class="game-over-content">
+                <h1>GAME OVER</h1>
+                <p>You crashed into an asteroid!</p>
+                <p class="final-score">Final Score: <span id="finalScore">0</span></p>
+                <button class="restart-btn" onclick="game.resetGame()">PLAY AGAIN</button>
+            </div>
+        </div>
+
+        <div class="controls-info">
+            Arrow Keys or WASD to move
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
