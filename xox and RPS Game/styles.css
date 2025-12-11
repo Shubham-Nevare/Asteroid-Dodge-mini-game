@@ -1,0 +1,742 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 8px;
+    color: #333;
+}
+
+.container {
+    width: 100%;
+    max-width: 500px;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 15px;
+    color: white;
+    animation: slideDown 0.6s ease-out;
+}
+
+.header h1 {
+    font-size: clamp(1.8rem, 5vw, 2.2rem);
+    margin-bottom: 5px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.game-toggle {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 15px;
+    justify-content: center;
+}
+
+.toggle-btn {
+    padding: 8px 15px;
+    border: 2px solid white;
+    background: transparent;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: clamp(0.8rem, 2vw, 0.95rem);
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.toggle-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-btn.active {
+    background: white;
+    color: #667eea;
+}
+
+.game-container {
+    display: none;
+    animation: fadeInUp 0.4s ease-out;
+}
+
+.game-container.active {
+    display: block;
+}
+
+.game-card {
+    background: white;
+    border-radius: 15px;
+    padding: 18px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.game-title {
+    font-size: clamp(1.2rem, 3.5vw, 1.6rem);
+    margin-bottom: 12px;
+    text-align: center;
+    color: #667eea;
+    font-weight: 600;
+}
+
+/* Tic Tac Toe Styles */
+.ttt-board {
+    display: grid;
+    grid-template-columns: repeat(3, 70px);
+    gap: 6px;
+    margin-bottom: 12px;
+    margin-left: auto;
+    margin-right: auto;
+    width: fit-content;
+}
+
+.ttt-cell {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 8px;
+    width: 70px;
+    height: 70px;
+    font-size: 2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ttt-cell:hover:not(:disabled) {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.ttt-cell:disabled {
+    cursor: not-allowed;
+}
+
+.ttt-cell.x {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.ttt-cell.o {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.ttt-status {
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    text-align: center;
+    margin-bottom: 12px;
+    font-weight: 600;
+    min-height: 26px;
+    color: #667eea;
+}
+
+.ttt-status.winner {
+    color: #f5576c;
+    animation: pulse 0.6s ease-in-out;
+}
+
+.ttt-status.draw {
+    color: #f59e0b;
+}
+
+/* Rock Paper Scissors Styles */
+.score-board {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    padding: 10px;
+    margin-bottom: 12px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    color: white;
+}
+
+.score-item {
+    text-align: center;
+    padding: 6px;
+}
+
+.score-item span {
+    display: block;
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    font-weight: bold;
+}
+
+.score-item p {
+    font-size: clamp(0.65rem, 1.8vw, 0.8rem);
+    opacity: 0.9;
+    margin-top: 2px;
+}
+
+.rps-choices {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.choice-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: clamp(1.6rem, 4vw, 2rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 6px;
+    aspect-ratio: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+.choice-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.choice-btn.selected {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    box-shadow: 0 5px 20px rgba(245, 87, 108, 0.4);
+}
+
+.result-display {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.result-item {
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-align: center;
+    color: white;
+    font-size: clamp(0.8rem, 2vw, 0.95rem);
+}
+
+.result-item.player {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.result-item.computer {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.result-item span:last-child {
+    font-size: 1.6em;
+    display: block;
+    margin-top: 4px;
+}
+
+.outcome {
+    font-size: clamp(0.95rem, 3vw, 1.2rem);
+    font-weight: bold;
+    padding: 9px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.outcome.win {
+    background: #d4edda;
+    color: #155724;
+}
+
+.outcome.lose {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.outcome.draw {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.btn {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    font-size: clamp(0.9rem, 2vw, 1rem);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+}
+
+/* Secondary button style (used for Play Again) */
+.btn-secondary {
+    background: white;
+    color: #667eea;
+    border: 2px solid rgba(102,126,234,0.12);
+}
+
+.btn-secondary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+/* Animations */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+footer {
+    text-align: center;
+    color: white;
+    margin-top: 15px;
+    font-size: clamp(0.75rem, 1.8vw, 0.9rem);
+    opacity: 0.9;
+}
+
+@media (max-width: 480px) {
+    .game-card {
+        padding: 14px;
+    }
+
+    .header {
+        margin-bottom: 12px;
+    }
+
+    .game-toggle {
+        gap: 6px;
+        margin-bottom: 12px;
+    }
+
+    .toggle-btn {
+        padding: 7px 12px;
+        font-size: 0.8rem;
+    }
+
+    .ttt-board {
+        gap: 5px;
+        margin-bottom: 10px;
+    }
+
+    .score-board {
+        padding: 8px;
+        gap: 5px;
+        margin-bottom: 10px;
+    }
+
+    .rps-choices {
+        gap: 7px;
+        margin-bottom: 10px;
+    }
+
+    .choice-btn {
+        padding: 10px;
+    }
+
+    .btn {
+        padding: 9px;
+    }
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 20px;
+    color: white;
+    animation: slideDown 0.6s ease-out;
+}
+
+.header h1 {
+    font-size: clamp(2rem, 5vw, 2.5rem);
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.game-toggle {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+.toggle-btn {
+    padding: 10px 20px;
+    border: 2px solid white;
+    background: transparent;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: clamp(0.85rem, 2vw, 1rem);
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.toggle-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-btn.active {
+    background: white;
+    color: #667eea;
+}
+
+.game-container {
+    display: none;
+    animation: fadeInUp 0.4s ease-out;
+}
+
+.game-container.active {
+    display: block;
+}
+
+.game-card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.game-title {
+    font-size: clamp(1.3rem, 3.5vw, 1.8rem);
+    margin-bottom: 15px;
+    text-align: center;
+    color: #667eea;
+    font-weight: 600;
+}
+
+/* Tic Tac Toe Styles */
+.ttt-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 15px;
+    aspect-ratio: 1;
+    max-width: 280px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.ttt-cell {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 8px;
+    font-size: clamp(1.3rem, 5vw, 2rem);
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ttt-cell:hover:not(:disabled) {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.ttt-cell:disabled {
+    cursor: not-allowed;
+}
+
+.ttt-cell.x {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.ttt-cell.o {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.ttt-status {
+    font-size: clamp(0.95rem, 2.5vw, 1.15rem);
+    text-align: center;
+    margin-bottom: 15px;
+    font-weight: 600;
+    min-height: 28px;
+    color: #667eea;
+}
+
+.ttt-status.winner {
+    color: #f5576c;
+    animation: pulse 0.6s ease-in-out;
+}
+
+.ttt-status.draw {
+    color: #f59e0b;
+}
+
+/* Rock Paper Scissors Styles */
+.score-board {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 15px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    color: white;
+}
+
+.score-item {
+    text-align: center;
+    padding: 8px;
+}
+
+.score-item span {
+    display: block;
+    font-size: clamp(0.95rem, 2.5vw, 1.2rem);
+    font-weight: bold;
+}
+
+.score-item p {
+    font-size: clamp(0.7rem, 1.8vw, 0.85rem);
+    opacity: 0.9;
+    margin-top: 3px;
+}
+
+.rps-choices {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.choice-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: clamp(1.8rem, 4vw, 2.2rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 6px;
+    aspect-ratio: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Make the choice label appear below the emoji inside the button */
+.choice-btn span {
+    display: block;
+    font-size: clamp(0.7rem, 2vw, 0.95rem);
+    margin-top: 4px;
+    color: white;
+    opacity: 0.95;
+}
+
+.choice-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.choice-btn.selected {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    box-shadow: 0 5px 20px rgba(245, 87, 108, 0.4);
+}
+
+.result-display {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.result-item {
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-align: center;
+    color: white;
+}
+
+.result-item.player {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.result-item.computer {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.result-item span:last-child {
+    font-size: 1.8em;
+    display: block;
+    margin-top: 5px;
+}
+
+.outcome {
+    font-size: clamp(1rem, 3vw, 1.3rem);
+    font-weight: bold;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.outcome.win {
+    background: #d4edda;
+    color: #155724;
+}
+
+.outcome.lose {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.outcome.draw {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: clamp(0.9rem, 2vw, 1rem);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+}
+
+/* Animations */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+footer {
+    text-align: center;
+    color: white;
+    margin-top: 20px;
+    font-size: clamp(0.8rem, 1.8vw, 0.95rem);
+    opacity: 0.9;
+}
+
+@media (max-width: 480px) {
+    .game-card {
+        padding: 15px;
+    }
+
+    .header {
+        margin-bottom: 15px;
+    }
+
+    .game-toggle {
+        gap: 8px;
+        margin-bottom: 15px;
+    }
+
+    .toggle-btn {
+        padding: 8px 15px;
+        font-size: 0.85rem;
+    }
+
+    .ttt-board {
+        gap: 6px;
+        margin-bottom: 12px;
+    }
+
+    .score-board {
+        padding: 10px;
+        gap: 6px;
+        margin-bottom: 12px;
+    }
+
+    .rps-choices {
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .choice-btn {
+        padding: 12px;
+    }
+
+    .btn {
+        padding: 10px;
+    }
+}

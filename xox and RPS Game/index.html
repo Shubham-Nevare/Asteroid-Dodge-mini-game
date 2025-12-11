@@ -1,0 +1,100 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Zone</title>
+    <link rel="stylesheet" href="styles.css">
+        <link rel="icon" href="favicon.svg" type="image/svg+xml">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 Game Zone</h1>
+            <p>Choose Your Game</p>
+        </div>
+
+        <div class="game-toggle">
+            <button class="toggle-btn active" data-game="ttt"> Tic Tac Toe</button>
+            <button class="toggle-btn" data-game="rps"> Rock Paper Scissors</button>
+        </div>
+
+        <!-- Tic Tac Toe Game -->
+        <div class="game-container active" id="ttt-container">
+            <div class="game-card">
+                <h2 class="game-title"> Tic Tac Toe</h2>
+                <div class="ttt-status" id="tttStatus">Your Turn (X)</div>
+                <div class="ttt-board" id="tttBoard">
+                    <button class="ttt-cell" data-index="0"></button>
+                    <button class="ttt-cell" data-index="1"></button>
+                    <button class="ttt-cell" data-index="2"></button>
+                    <button class="ttt-cell" data-index="3"></button>
+                    <button class="ttt-cell" data-index="4"></button>
+                    <button class="ttt-cell" data-index="5"></button>
+                    <button class="ttt-cell" data-index="6"></button>
+                    <button class="ttt-cell" data-index="7"></button>
+                    <button class="ttt-cell" data-index="8"></button>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-primary" id="tttResetBtn">New Game</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rock Paper Scissors Game -->
+        <div class="game-container" id="rps-container">
+            <div class="game-card">
+                <h2 class="game-title"> Rock Paper Scissors</h2>
+                <div class="rps-header" style="display:flex;gap:8px;justify-content:center;margin-bottom:12px;">
+                    <input id="playerName" type="text" placeholder="Your name"
+                        style="padding:8px;border-radius:8px;border:1px solid #ddd;min-width:140px;">
+                    <button class="btn btn-secondary" id="rpsPlayAgainBtn" style="min-width:120px;">Play Again</button>
+                </div>
+                <div class="outcome" id="outcome" style="display: none;"></div>
+
+                <div class="score-board">
+                    <div class="score-item">
+                        <span id="playerScore">0</span>
+                        <p>You</p>
+                    </div>
+                    <div class="score-item">
+                        <span id="drawScore">0</span>
+                        <p>Draws</p>
+                    </div>
+                    <div class="score-item">
+                        <span id="computerScore">0</span>
+                        <p>Computer</p>
+                    </div>
+                </div>
+                <div class="rps-choices" id="rpsChoices">
+                    <button class="choice-btn" data-choice="rock">🪨<span>Rock</span></button>
+                    <button class="choice-btn" data-choice="paper">📄<span>Paper</span></button>
+                    <button class="choice-btn" data-choice="scissors">✂️<span>Scissor</span></button>
+                </div>
+                <div class="rps-result">
+                    <h3 id="rpsResultTitle" style="display: none;">Result</h3>
+                    <div class="result-display" id="resultDisplay" style="display: none;">
+                        <div class="result-item player">
+                            <span id="playerLabel">You</span>
+                            <span id="playerChoice" style="font-size: 2em; margin-top: 5px;"></span>
+                        </div>
+                        <div class="result-item computer">
+                            <span id="computerLabel">Computer</span>
+                            <span id="computerChoice" style="font-size: 2em; margin-top: 5px;"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p> Built with HTML5, CSS3, and JavaScript</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
