@@ -37,6 +37,14 @@ export default function Home() {
       frameCount: 0,
     };
 
+    // Load persisted high score
+    try {
+      const saved = Number(localStorage.getItem('asteroid_highScore')) || 0;
+      gameState.highScore = saved;
+    } catch (e) {
+      gameState.highScore = 0;
+    }
+
     // Player Object (x,y are CENTER coordinates)
     const player = {
       x: CONFIG.canvasWidth / 2,
@@ -69,6 +77,60 @@ export default function Home() {
 
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
+
+    // Mobile / Pointer input state and handlers
+    canvas.style.touchAction = 'none';
+    const touchState = { active: false, x: 0, y: 0 };
+
+    const onPointerDown = (e) => {
+      try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
+      const rect = canvas.getBoundingClientRect();
+      touchState.active = true;
+      touchState.x = e.clientX - rect.left;
+      touchState.y = e.clientY - rect.top;
+    };
+
+    const onPointerMove = (e) => {
+      if (!touchState.active) return;
+      const rect = canvas.getBoundingClientRect();
+      touchState.x = e.clientX - rect.left;
+      touchState.y = e.clientY - rect.top;
+    };
+
+    const onPointerUp = (e) => {
+      try { canvas.releasePointerCapture(e.pointerId); } catch (err) {}
+      touchState.active = false;
+    };
+
+    const onPointerCancel = (e) => { touchState.active = false; };
+
+    const onTouchStart = (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const t = e.touches[0];
+      touchState.active = true;
+      touchState.x = t.clientX - rect.left;
+      touchState.y = t.clientY - rect.top;
+      e.preventDefault();
+    };
+
+    const onTouchMove = (e) => {
+      if (!touchState.active) return;
+      const rect = canvas.getBoundingClientRect();
+      const t = e.touches[0];
+      touchState.x = t.clientX - rect.left;
+      touchState.y = t.clientY - rect.top;
+      e.preventDefault();
+    };
+
+    const onTouchEnd = (e) => { touchState.active = false; };
+
+    canvas.addEventListener('pointerdown', onPointerDown);
+    canvas.addEventListener('pointermove', onPointerMove);
+    canvas.addEventListener('pointerup', onPointerUp);
+    canvas.addEventListener('pointercancel', onPointerCancel);
+    canvas.addEventListener('touchstart', onTouchStart, { passive: false });
+    canvas.addEventListener('touchmove', onTouchMove, { passive: false });
+    canvas.addEventListener('touchend', onTouchEnd);
 
     // Asteroid Class
     class Asteroid {
@@ -321,11 +383,22 @@ export default function Home() {
         player.dx = 0;
         player.dy = 0;
 
-        // keys are stored lowercase by the handlers
-        if (keys['arrowup'] || keys['w']) player.dy = -CONFIG.playerSpeed;
-        if (keys['arrowdown'] || keys['s']) player.dy = CONFIG.playerSpeed;
-        if (keys['arrowleft'] || keys['a']) player.dx = -CONFIG.playerSpeed;
-        if (keys['arrowright'] || keys['d']) player.dx = CONFIG.playerSpeed;
+        // If touch is active, move player toward touch point (mobile-friendly)
+        if (touchState && touchState.active) {
+          const targetX = touchState.x;
+          const targetY = touchState.y;
+          const diffX = targetX - player.x;
+          const diffY = targetY - player.y;
+          const threshold = 4;
+          if (Math.abs(diffX) > threshold) player.dx = Math.sign(diffX) * CONFIG.playerSpeed;
+          if (Math.abs(diffY) > threshold) player.dy = Math.sign(diffY) * CONFIG.playerSpeed;
+        } else {
+          // keys are stored lowercase by the handlers
+          if (keys['arrowup'] || keys['w']) player.dy = -CONFIG.playerSpeed;
+          if (keys['arrowdown'] || keys['s']) player.dy = CONFIG.playerSpeed;
+          if (keys['arrowleft'] || keys['a']) player.dx = -CONFIG.playerSpeed;
+          if (keys['arrowright'] || keys['d']) player.dx = CONFIG.playerSpeed;
+        }
 
         player.x += player.dx;
         player.y += player.dy;
@@ -416,9 +489,18 @@ export default function Home() {
         const scoreEl = document.getElementById('score');
         const healthEl = document.getElementById('health');
         const levelEl = document.getElementById('level');
+        const highEl = document.getElementById('highScore');
         if (scoreEl) scoreEl.textContent = gameState.score;
         if (healthEl) healthEl.textContent = gameState.health;
         if (levelEl) levelEl.textContent = gameState.level;
+        // update and persist high score
+        if (typeof gameState.highScore === 'number') {
+          if (gameState.score > gameState.highScore) {
+            gameState.highScore = gameState.score;
+            try { localStorage.setItem('asteroid_highScore', String(gameState.highScore)); } catch (e) {}
+          }
+          if (highEl) highEl.textContent = gameState.highScore;
+        }
       },
 
       draw() {
@@ -480,6 +562,17 @@ export default function Home() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
+      // remove canvas pointer/touch listeners
+      try {
+        canvas.removeEventListener('pointerdown', onPointerDown);
+        canvas.removeEventListener('pointermove', onPointerMove);
+        canvas.removeEventListener('pointerup', onPointerUp);
+        canvas.removeEventListener('pointercancel', onPointerCancel);
+        canvas.removeEventListener('touchstart', onTouchStart);
+        canvas.removeEventListener('touchmove', onTouchMove);
+        canvas.removeEventListener('touchend', onTouchEnd);
+        canvas.style.touchAction = '';
+      } catch (e) {}
       // cleanup global
       if (window.game === game) delete window.game;
     };
@@ -499,8 +592,10 @@ export default function Home() {
           
           <div className="absolute top-5 left-5 right-5 flex justify-between text-white font-bold text-sm md:text-lg pointer-events-none z-10">
             <div className="bg-black/50 px-3 md:px-5 py-2 rounded border-2 border-red-500">Score: <span id="score">0</span></div>
+            <div className="bg-black/50 px-3 md:px-5 py-2 rounded border-2 border-red-500">Highest Score: <span id="highScore">0</span></div>
             <div className="bg-black/50 px-3 md:px-5 py-2 rounded border-2 border-red-500">Health: <span id="health">3</span></div>
-          </div>          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-base bg-black/50 px-5 py-2 rounded border-2 border-red-500 pointer-events-none z-10" id="levelBox" style={{ display: 'none' }}>
+          </div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-base bg-black/50 px-5 py-2 rounded border-2 border-red-500 pointer-events-none z-10" id="levelBox" style={{ display: 'none' }}>
             Level <span id="level">1</span>
           </div>
 
@@ -518,7 +613,7 @@ export default function Home() {
               </ul>
               <button
                 onClick={() => window.game?.startGame()}
-                className="mt-6 px-8 md:px-12 py-2 md:py-3 text-sm md:text-xl font-bold bg-linear-to-r from-green-500 to-emerald-600 text-black rounded hover:scale-105 transition-transform active:scale-95"
+                className="mt-6 px-8 md:px-12 py-2 md:py-3 text-sm md:text-xl font-bold bg-linear-to-r from-green-500 to-emerald-600 text-black rounded hover:scale-105 transition-transform active:scale-95 cursor-pointer"
               >
                 PLAY NOW
               </button>

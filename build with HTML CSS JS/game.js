@@ -24,6 +24,14 @@ const gameState = {
     frameCount: 0,
 };
 
+// Load persisted high score (safely)
+try {
+    const saved = Number(localStorage.getItem('asteroid_highScore')) || 0;
+    gameState.highScore = saved;
+} catch (e) {
+    gameState.highScore = 0;
+}
+
 // Player Object
 const player = {
     x: CONFIG.canvasWidth / 2,
@@ -57,6 +65,64 @@ window.addEventListener('keyup', (e) => {
 // Canvas Setup
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
+
+// Improve touch/pointer behavior on mobile: prevent default touch scrolling on canvas
+canvas.style.touchAction = 'none';
+
+// Touch / Pointer state for mobile controls
+const touchState = {
+    active: false,
+    x: 0,
+    y: 0
+};
+
+// Pointer events (preferred) for unified mouse/touch handling
+canvas.addEventListener('pointerdown', (e) => {
+    try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
+    const rect = canvas.getBoundingClientRect();
+    touchState.active = true;
+    touchState.x = e.clientX - rect.left;
+    touchState.y = e.clientY - rect.top;
+});
+
+canvas.addEventListener('pointermove', (e) => {
+    if (!touchState.active) return;
+    const rect = canvas.getBoundingClientRect();
+    touchState.x = e.clientX - rect.left;
+    touchState.y = e.clientY - rect.top;
+});
+
+canvas.addEventListener('pointerup', (e) => {
+    try { canvas.releasePointerCapture(e.pointerId); } catch (err) {}
+    touchState.active = false;
+});
+
+canvas.addEventListener('pointercancel', (e) => {
+    touchState.active = false;
+});
+
+// Fallback to touch events for older browsers that don't support pointer events
+canvas.addEventListener('touchstart', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const t = e.touches[0];
+    touchState.active = true;
+    touchState.x = t.clientX - rect.left;
+    touchState.y = t.clientY - rect.top;
+    e.preventDefault();
+}, { passive: false });
+
+canvas.addEventListener('touchmove', (e) => {
+    if (!touchState.active) return;
+    const rect = canvas.getBoundingClientRect();
+    const t = e.touches[0];
+    touchState.x = t.clientX - rect.left;
+    touchState.y = t.clientY - rect.top;
+    e.preventDefault();
+}, { passive: false });
+
+canvas.addEventListener('touchend', (e) => {
+    touchState.active = false;
+});
 
 // Responsive canvas resize: set drawing buffer to match displayed size * devicePixelRatio
 function resizeCanvas() {
@@ -293,10 +359,21 @@ const game = {
         player.dx = 0;
         player.dy = 0;
 
-        if (keys['arrowup'] || keys['ArrowUp'] || keys['w'] || keys['W']) player.dy = -CONFIG.playerSpeed;
-        if (keys['arrowdown'] || keys['ArrowDown'] || keys['s'] || keys['S']) player.dy = CONFIG.playerSpeed;
-        if (keys['arrowleft'] || keys['ArrowLeft'] || keys['a'] || keys['A']) player.dx = -CONFIG.playerSpeed;
-        if (keys['arrowright'] || keys['ArrowRight'] || keys['d'] || keys['D']) player.dx = CONFIG.playerSpeed;
+        // If touch is active, move player toward touch point (mobile-friendly)
+        if (touchState.active) {
+            const targetX = touchState.x;
+            const targetY = touchState.y;
+            const diffX = targetX - player.x;
+            const diffY = targetY - player.y;
+            const threshold = 4; // small deadzone to avoid jitter
+            if (Math.abs(diffX) > threshold) player.dx = Math.sign(diffX) * CONFIG.playerSpeed;
+            if (Math.abs(diffY) > threshold) player.dy = Math.sign(diffY) * CONFIG.playerSpeed;
+        } else {
+            if (keys['arrowup'] || keys['ArrowUp'] || keys['w'] || keys['W']) player.dy = -CONFIG.playerSpeed;
+            if (keys['arrowdown'] || keys['ArrowDown'] || keys['s'] || keys['S']) player.dy = CONFIG.playerSpeed;
+            if (keys['arrowleft'] || keys['ArrowLeft'] || keys['a'] || keys['A']) player.dx = -CONFIG.playerSpeed;
+            if (keys['arrowright'] || keys['ArrowRight'] || keys['d'] || keys['D']) player.dx = CONFIG.playerSpeed;
+        }
 
         // Apply movement with boundary checking
         player.x += player.dx;
@@ -398,6 +475,13 @@ const game = {
         document.getElementById('score').textContent = gameState.score;
         document.getElementById('health').textContent = gameState.health;
         document.getElementById('level').textContent = gameState.level;
+        // Check and persist high score
+        if (gameState.score > gameState.highScore) {
+            gameState.highScore = gameState.score;
+            try { localStorage.setItem('asteroid_highScore', String(gameState.highScore)); } catch (e) {}
+        }
+        const hsEl = document.getElementById('highScore');
+        if (hsEl) hsEl.textContent = gameState.highScore;
     },
 
     draw() {
